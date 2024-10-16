@@ -41,7 +41,7 @@ from backend_request_func import (ASYNC_REQUEST_FUNCS, RequestFuncInput,
 from datasets import load_dataset
 from PIL.Image import Image
 from tqdm.asyncio import tqdm
-from transformers import PreTrainedTokenizerBase
+from transformers import PreTrainedTokenizerBase, AutoTokenizer
 
 try:
     from vllm.transformers_utils.tokenizer import get_tokenizer
@@ -263,6 +263,7 @@ def sample_random_requests(
     range_ratio: float,
     tokenizer: PreTrainedTokenizerBase,
 ) -> List[Tuple[str, int, int]]:
+    # Randomly sample the prefix tokens. (There are prefix_len tokens in total.)
     prefix_token_ids = np.random.randint(0,
                                          tokenizer.vocab_size,
                                          size=prefix_len).tolist()
@@ -585,8 +586,7 @@ def main(args: argparse.Namespace):
         api_url = f"http://{args.host}:{args.port}{args.endpoint}"
         base_url = f"http://{args.host}:{args.port}"
 
-    tokenizer = get_tokenizer(tokenizer_id,
-                              trust_remote_code=args.trust_remote_code)
+    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3.1-405B-FP8", token="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")
 
     if args.dataset is not None:
         warnings.warn(
